@@ -79,7 +79,7 @@ def scale_to(strategy, new_scale):
 GOLD_TO_FOOD_RATIO = (1 / 5) / 1.1
 AVG_FISHING_SHIP_FOOD = 32
 AVG_FISHING_SHIP_GOLD = AVG_FISHING_SHIP_FOOD * GOLD_TO_FOOD_RATIO
-AVG_LARGE_FISHING_SHIP_FOOD = 130
+AVG_LARGE_FISHING_SHIP_FOOD = 100
 AVG_LARGE_FISHING_SHIP_GOLD = AVG_LARGE_FISHING_SHIP_FOOD * GOLD_TO_FOOD_RATIO
 FARM_FIELD_FOOD = 26
 FARM_FIELD_GOLD = FARM_FIELD_FOOD * GOLD_TO_FOOD_RATIO
@@ -87,15 +87,10 @@ AVG_N_FIELDS_IN_FARM = 48
 BIG_FARM_FIELD_FOOD = 34
 BIG_FARM_FIELD_GOLD = BIG_FARM_FIELD_FOOD * GOLD_TO_FOOD_RATIO
 AVG_N_FIELDS_IN_BIG_FARM = 110
+MAX_N_FIELDS_IN_BIG_FARM = 120
 
 # Used for testing pure strategies (whether to use the strategy or not)
 CURRENT = NamedStrategy("current", get_strategy())
-
-# Used for ignoring the fishing ships
-IGNORE_FISHING_SHIPS = NamedStrategy(
-    "ignore_fishing_ships", get_strategy(fishing_ship=-1)
-)
-
 
 # Strategies:
 GOLD_MINE = NamedStrategy("gold_mine", get_strategy(gold=150))
@@ -248,7 +243,7 @@ OIL_GAIN_STRATEGIES = [
 
 SMALL_SHIPYARD = NamedStrategy(
     "small_shipyard",
-    get_strategy(pollution=5, sea=-1, fishing_ship=1, gold=0),  # AVG_SMALL_FISH_GOLD)
+    get_strategy(pollution=5, sea=-1, fishing_ship=1, gold=0),
 )
 HEAVY_SHIPYARD = NamedStrategy(
     "heavy_shipyard",
@@ -257,7 +252,7 @@ HEAVY_SHIPYARD = NamedStrategy(
         energy=-150,
         sea=-1,
         fishing_ship=4,
-        gold=150,  # + 4 * AVG_SMALL_FISH_GOLD,
+        gold=150,
     ),
 )
 SHIPYARD_STRATEGIES = [SMALL_SHIPYARD, HEAVY_SHIPYARD]
@@ -295,6 +290,11 @@ BIG_FARM_WITH_FIELDS = NamedStrategy(
     without_scale(BIG_FARM.strategy)
     + AVG_N_FIELDS_IN_BIG_FARM * BIG_FARM_FIELD.strategy,
 )
+BIG_FARM_WITH_MAX_FIELDS = NamedStrategy(
+    "big_farm_with_max_fields",
+    without_scale(BIG_FARM.strategy)
+    + MAX_N_FIELDS_IN_BIG_FARM * BIG_FARM_FIELD.strategy,
+)
 FISHING_SHIP = NamedStrategy(
     "fishing_ship",
     get_strategy(
@@ -313,6 +313,7 @@ LARGE_FISHING_SHIP = NamedStrategy(
 FOOD_STRATEGIES = [
     FARM_WITH_FIELDS,
     BIG_FARM_WITH_FIELDS,
+    BIG_FARM_WITH_MAX_FIELDS,
     FISHING_SHIP,
     LARGE_FISHING_SHIP,
 ]
@@ -352,12 +353,11 @@ THERMAL_PLANT_WITH_10_FAST_ROADS = NamedStrategy(
     "thermal_plant_with_10_fast_roads",
     THERMAL_PLANT.strategy + 10 * without_scale(FAST_ROAD.strategy),
 )
+# Used for ignoring the fishing ships
+IGNORE_FISHING_SHIP = NamedStrategy(
+    "ignore_fishing_ship", get_strategy(fishing_ship=-1)
+)
 PURE_STRATEGIES = [
-    FARM_WITH_FIELDS,  # a food strategy is also pure
-    BIG_FARM_WITH_FIELDS,  # a food strategy is also pure
-    IGNORE_FISHING_SHIPS,  # used to check if should ignore fishing ships
-    FISHING_SHIP,  # a food strategy is also pure
-    LARGE_FISHING_SHIP,  # a food strategy is also pure
     SMALL_FOREST,
     DENSE_FOREST,
     DEEP_FOREST,
@@ -370,11 +370,12 @@ PURE_STRATEGIES = [
     THERMAL_PLANT_WITH_5_FAST_ROADS,
     THERMAL_PLANT_WITH_9_FAST_ROADS,
     THERMAL_PLANT_WITH_10_FAST_ROADS,
-]
+    IGNORE_FISHING_SHIP,
+] + FOOD_STRATEGIES  # food strategies are also pure strategies
 
 
 # Choose current best strategies for normalization
 CURRENT_ENERGY_STRATEGY = ADVANCED_WIND_MILL.strategy
 CURRENT_LAND_STRATEGY = BIG_FARM_WITH_FIELDS.strategy
 CURRENT_SEA_STRATEGY = SWEPT_OCEAN.strategy
-CURRENT_FISHING_SHIP_STRATEGY = IGNORE_FISHING_SHIPS.strategy
+CURRENT_FISHING_SHIP_STRATEGY = FISHING_SHIP.strategy

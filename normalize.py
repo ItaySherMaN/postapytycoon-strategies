@@ -1,4 +1,17 @@
-from strategies import *
+from strategies import (
+    without_scale,
+    scale_to,
+    CURRENT_ENERGY_STRATEGY,
+    CURRENT_LAND_STRATEGY,
+    CURRENT_SEA_STRATEGY,
+    CURRENT_FISHING_SHIP_STRATEGY,
+    ENERGY_ID,
+    LAND_ID,
+    SEA_ID,
+    FISHING_SHIP_ID,
+)
+import numpy as np
+
 
 ENERGY_NORMALIZER = without_scale(CURRENT_ENERGY_STRATEGY)
 

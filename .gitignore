@@ -1,0 +1,6 @@
+*.out
+*.o
+*.pyc
+bazel-*
+.vscode*
+*.bazelrc
