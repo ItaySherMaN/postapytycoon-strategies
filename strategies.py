@@ -1,0 +1,380 @@
+import numpy as np
+from math import log10, floor
+
+
+POLLUTION_ID = 0
+ENERGY_ID = 1
+LAND_ID = 2
+SEA_ID = 3
+FISHING_SHIP_ID = 4
+GOLD_ID = 5
+SCALE_ID = 6
+
+LABELS = [
+    "POLLUTION_ID",
+    "ENERGY_ID",
+    "LAND_ID",
+    "SEA_ID",
+    "FISHING_SHIP_ID",
+    "GOLD_ID",
+    "SCALE_ID",
+]
+
+
+class NamedStrategy:
+    def __init__(self, name, strategy):
+        self.name = name
+        self.strategy = strategy
+
+    def __iter__(self):
+        yield self.name
+        yield self.strategy
+
+
+def to_str(num, digits=8):
+    if num == 0:
+        return f"{0:.{digits}f}"
+    if num == float("inf"):
+        return "inf"
+    if num == float("-inf"):
+        return "-inf"
+    exp = floor(log10(abs(num)))
+    scaled = num / (10**exp)
+    truncated = round(scaled, digits)
+    num = truncated * (10**exp)
+    return f"{round(num, digits):.{digits}f}"
+
+
+def get_strategy(pollution=0, energy=0, land=0, sea=0, fishing_ship=0, gold=0, scale=1):
+    strategy = np.empty(len(LABELS))
+    strategy[POLLUTION_ID] = pollution
+    strategy[ENERGY_ID] = energy
+    strategy[LAND_ID] = land
+    strategy[SEA_ID] = sea
+    strategy[FISHING_SHIP_ID] = fishing_ship
+    strategy[GOLD_ID] = gold
+    strategy[SCALE_ID] = scale
+    return strategy
+
+
+def without_scale(strategy):
+    """
+    Returns a copy of the strategy with scale set to 0.
+    """
+    s = np.copy(strategy)
+    s[SCALE_ID] = 0
+    return s
+
+
+def scale_to(strategy, new_scale):
+    """
+    Returns a copy of the strategy scaled to new_scale.
+    """
+    old_scale = strategy[SCALE_ID]
+    return strategy * (new_scale / old_scale)
+
+
+# 1 food transform into 1/5 gold, but gold from food doesn't get the 10%
+# bonus of regular gold income, and we measure income before the 10% bonus.
+GOLD_TO_FOOD_RATIO = (1 / 5) / 1.1
+AVG_FISHING_SHIP_FOOD = 32
+AVG_FISHING_SHIP_GOLD = AVG_FISHING_SHIP_FOOD * GOLD_TO_FOOD_RATIO
+AVG_LARGE_FISHING_SHIP_FOOD = 130
+AVG_LARGE_FISHING_SHIP_GOLD = AVG_LARGE_FISHING_SHIP_FOOD * GOLD_TO_FOOD_RATIO
+FARM_FIELD_FOOD = 26
+FARM_FIELD_GOLD = FARM_FIELD_FOOD * GOLD_TO_FOOD_RATIO
+AVG_N_FIELDS_IN_FARM = 48
+BIG_FARM_FIELD_FOOD = 34
+BIG_FARM_FIELD_GOLD = BIG_FARM_FIELD_FOOD * GOLD_TO_FOOD_RATIO
+AVG_N_FIELDS_IN_BIG_FARM = 110
+
+# Used for testing pure strategies (whether to use the strategy or not)
+CURRENT = NamedStrategy("current", get_strategy())
+
+# Used for ignoring the fishing ships
+IGNORE_FISHING_SHIPS = NamedStrategy(
+    "ignore_fishing_ships", get_strategy(fishing_ship=-1)
+)
+
+
+# Strategies:
+GOLD_MINE = NamedStrategy("gold_mine", get_strategy(gold=150))
+ADVANCED_GOLD_MINE = NamedStrategy(
+    "advanced_gold_mine", get_strategy(pollution=5, energy=-50, gold=375)
+)
+SPECIAL_GOLD_MINE = NamedStrategy("special_gold_mine", get_strategy(gold=375))
+HEAVY_GOLD_MINE = NamedStrategy(
+    "heavy_gold_mine", get_strategy(pollution=35, energy=-170, gold=600)
+)
+PREMIUM_GOLD_MINE = NamedStrategy(
+    "premium_gold_mine", get_strategy(pollution=10, energy=-10, gold=600)
+)
+GOLD_MINE_STRATEGIES = [
+    GOLD_MINE,
+    ADVANCED_GOLD_MINE,
+    SPECIAL_GOLD_MINE,
+    HEAVY_GOLD_MINE,
+    PREMIUM_GOLD_MINE,
+]
+
+LEVEL_20 = NamedStrategy("level_20", get_strategy(gold=527))
+LEVEL_30 = NamedStrategy("level_30", get_strategy(pollution=117, energy=-282, gold=761))
+LEVEL_40 = NamedStrategy("level_40", get_strategy(pollution=207, energy=-539, gold=956))
+LEVEL_50 = NamedStrategy(
+    "level_50", get_strategy(pollution=297, energy=-795, gold=1164)
+)
+LEVEL_55 = NamedStrategy(
+    "level_55", get_strategy(pollution=342, energy=-923, gold=1229)
+)
+LEVEL_66 = NamedStrategy(
+    "level_66", get_strategy(pollution=441, energy=-1206, gold=1463)
+)
+SETTLEMENTS_STRATEGIES = [LEVEL_20, LEVEL_30, LEVEL_40, LEVEL_50, LEVEL_55, LEVEL_66]
+
+MEGA_CITY_33 = NamedStrategy(
+    "mega_city_33", get_strategy(pollution=216, energy=-567, gold=3998)
+)
+MEGA_CITY_60 = NamedStrategy(
+    "mega_city_60", get_strategy(pollution=581, energy=-1661, gold=6923)
+)
+MEGA_CITY_STRATEGIES = [MEGA_CITY_33, MEGA_CITY_60]
+
+DIRT_ROAD = NamedStrategy("dirt_road", get_strategy(land=-1))
+PAVED_ROAD = NamedStrategy("paved_road", get_strategy(land=-1, gold=1))
+BASIC_ROAD = NamedStrategy("basic_road", get_strategy(pollution=1, land=-1, gold=2))
+STREET_ROAD = NamedStrategy("street_road", get_strategy(pollution=2, land=-1, gold=3))
+FAST_ROAD = NamedStrategy("fast_road", get_strategy(pollution=5, land=-1, gold=5))
+
+ROADS_STRATEGIES = [
+    DIRT_ROAD,
+    PAVED_ROAD,
+    BASIC_ROAD,
+    STREET_ROAD,
+    FAST_ROAD,
+]
+
+HEAVY_CHIP_FACTORY = NamedStrategy(
+    "heavy_chip_factory", get_strategy(pollution=400, energy=-700, scale=1200)
+)
+CHIP_FACTORY = NamedStrategy(
+    "chip_factory", get_strategy(pollution=75, energy=-200, scale=480)
+)
+SPACE_AGE_FACTORY = NamedStrategy(
+    "space_age_factory", get_strategy(pollution=100, energy=-200, gold=300, scale=540)
+)
+CHIPS_GAIN_STRATEGIES = [HEAVY_CHIP_FACTORY, CHIP_FACTORY, SPACE_AGE_FACTORY]
+
+STONE_MINE = NamedStrategy("stone_mine", get_strategy(pollution=2, land=-1, scale=15))
+MK2_STONE_MINE = NamedStrategy(
+    "mk2_stone_mine", get_strategy(pollution=5, energy=-20, land=-1, scale=30)
+)
+STONE_GAIN_STRATEGIES = [STONE_MINE, MK2_STONE_MINE]
+
+FOUNDARY = NamedStrategy("foundary", get_strategy(pollution=65, energy=-25, land=-1))
+FOUNDARY_IRON_MINE = NamedStrategy(
+    "foundary_iron_mine",
+    get_strategy(pollution=5, energy=-3, land=-1, scale=10),
+)
+FOUNDARY_20_MINES = NamedStrategy(
+    "foundary_20_mines",
+    without_scale(FOUNDARY.strategy) + 20 * FOUNDARY_IRON_MINE.strategy,
+)
+HEAVY_FOUNDARY = NamedStrategy(
+    "heavy_foundary", get_strategy(pollution=300, energy=-250, land=-1)
+)
+HEAVY_FOUNDARY_IRON_MINE = NamedStrategy(
+    "heavy_foundary_iron_mine",
+    get_strategy(pollution=5, energy=-3, land=-1, scale=30),
+)
+HEAVY_FOUNDARY_10_MINES = NamedStrategy(
+    "heavy_foundary_10_mines",
+    without_scale(HEAVY_FOUNDARY.strategy) + 10 * HEAVY_FOUNDARY_IRON_MINE.strategy,
+)
+HEAVY_FOUNDARY_20_MINES = NamedStrategy(
+    "heavy_foundary_20_mines",
+    without_scale(HEAVY_FOUNDARY.strategy) + 20 * HEAVY_FOUNDARY_IRON_MINE.strategy,
+)
+HEAVY_FOUNDARY_30_MINES = NamedStrategy(
+    "heavy_foundary_30_mines",
+    without_scale(HEAVY_FOUNDARY.strategy) + 30 * HEAVY_FOUNDARY_IRON_MINE.strategy,
+)
+HEAVY_FOUNDARY_35_MINES = NamedStrategy(
+    "heavy_foundary_35_mines",
+    without_scale(HEAVY_FOUNDARY.strategy) + 35 * HEAVY_FOUNDARY_IRON_MINE.strategy,
+)
+HEAVY_FOUNDARY_45_MINES = NamedStrategy(
+    "heavy_foundary_45_mines",
+    without_scale(HEAVY_FOUNDARY.strategy) + 45 * HEAVY_FOUNDARY_IRON_MINE.strategy,
+)
+IRON_GAIN_STRATEGIES = [
+    FOUNDARY_20_MINES,
+    HEAVY_FOUNDARY_10_MINES,
+    HEAVY_FOUNDARY_20_MINES,
+    HEAVY_FOUNDARY_30_MINES,
+    HEAVY_FOUNDARY_35_MINES,
+    HEAVY_FOUNDARY_45_MINES,
+]
+
+LUMBER_MILL = NamedStrategy("lumber_mill", get_strategy(land=-1, scale=2 * 24))
+INDUSTRIAL_MILL = NamedStrategy(
+    "industrial_mill", get_strategy(pollution=15, energy=-20, land=-1, scale=4 * 80)
+)
+PREMIUM_LUMBER_MILL = NamedStrategy(
+    "premium_lumber_mill", get_strategy(land=-1, scale=14 * 80)
+)
+WOOD_GAIN_STRATEGIES = [LUMBER_MILL, INDUSTRIAL_MILL, PREMIUM_LUMBER_MILL]
+
+OIL_STORAGE = NamedStrategy("oil_storage", get_strategy(land=-1, scale=8250))
+OIL_TANKER = NamedStrategy("oil_tanker", get_strategy(pollution=5, sea=-1, scale=4400))
+OIL_STORAGE_STRATEGIES = [OIL_STORAGE, OIL_TANKER]
+
+ONSHORE_OIL_RIG = NamedStrategy(
+    "onshore_oil_rig", get_strategy(pollution=5 + 10, energy=-10, land=-1, scale=10)
+)
+# offshore_oil_rig scale is 40 ONLY when next to an oil_tanker,
+# otherwise it is 20 and I'm not even considering it because it's very bad
+OFFSHORE_OIL_RIG = NamedStrategy(
+    "offshore_oil_rig", get_strategy(pollution=45 + 60, energy=30, sea=-1, scale=40)
+)
+OFFSHORE_OIL_RIG_WITH_OIL_TANKER = NamedStrategy(
+    "offshore_oil_rig_with_oil_tanker",
+    OFFSHORE_OIL_RIG.strategy + without_scale(OIL_TANKER.strategy),
+)
+OIL_GAIN_STRATEGIES = [
+    ONSHORE_OIL_RIG,
+    OFFSHORE_OIL_RIG_WITH_OIL_TANKER,
+    OFFSHORE_OIL_RIG,
+]
+
+SMALL_SHIPYARD = NamedStrategy(
+    "small_shipyard",
+    get_strategy(pollution=5, sea=-1, fishing_ship=1, gold=0),  # AVG_SMALL_FISH_GOLD)
+)
+HEAVY_SHIPYARD = NamedStrategy(
+    "heavy_shipyard",
+    get_strategy(
+        pollution=75,
+        energy=-150,
+        sea=-1,
+        fishing_ship=4,
+        gold=150,  # + 4 * AVG_SMALL_FISH_GOLD,
+    ),
+)
+SHIPYARD_STRATEGIES = [SMALL_SHIPYARD, HEAVY_SHIPYARD]
+
+
+FARM = NamedStrategy(
+    "farm",
+    get_strategy(land=-1),
+)
+FARM_FIELD = NamedStrategy(
+    "farm_field",
+    get_strategy(
+        pollution=-3,
+        land=-1,
+        gold=FARM_FIELD_GOLD,
+        scale=FARM_FIELD_FOOD,
+    ),
+)
+FARM_WITH_FIELDS = NamedStrategy(
+    "farm_with_fields",
+    without_scale(FARM.strategy) + AVG_N_FIELDS_IN_FARM * FARM_FIELD.strategy,
+)
+BIG_FARM = NamedStrategy("big_farm", get_strategy(energy=-3, land=-1))
+BIG_FARM_FIELD = NamedStrategy(
+    "big_farm_field",
+    get_strategy(
+        pollution=-3,
+        land=-1,
+        gold=BIG_FARM_FIELD_GOLD,
+        scale=BIG_FARM_FIELD_FOOD,
+    ),
+)
+BIG_FARM_WITH_FIELDS = NamedStrategy(
+    "big_farm_with_fields",
+    without_scale(BIG_FARM.strategy)
+    + AVG_N_FIELDS_IN_BIG_FARM * BIG_FARM_FIELD.strategy,
+)
+FISHING_SHIP = NamedStrategy(
+    "fishing_ship",
+    get_strategy(
+        sea=-1, fishing_ship=-1, gold=AVG_FISHING_SHIP_GOLD, scale=AVG_FISHING_SHIP_FOOD
+    ),
+)
+LARGE_FISHING_SHIP = NamedStrategy(
+    "large_fishing_ship",
+    get_strategy(
+        pollution=10,
+        sea=-1,
+        gold=AVG_LARGE_FISHING_SHIP_GOLD,
+        scale=AVG_LARGE_FISHING_SHIP_FOOD,
+    ),
+)
+FOOD_STRATEGIES = [
+    FARM_WITH_FIELDS,
+    BIG_FARM_WITH_FIELDS,
+    FISHING_SHIP,
+    LARGE_FISHING_SHIP,
+]
+
+# Pure-strategies: They are only used for getting gold, energy, or reducing pollution.
+SWEPT_OCEAN = NamedStrategy("swept_ocean", get_strategy(gold=3, sea=-1))
+SMALL_FOREST = NamedStrategy(
+    "small_forest", get_strategy(pollution=-1, land=-1, gold=1)
+)
+DENSE_FOREST = NamedStrategy(
+    "dense_forest", get_strategy(pollution=-2, land=-1, gold=2)
+)
+DEEP_FOREST = NamedStrategy("deep_forest", get_strategy(pollution=-3, land=-1, gold=4))
+COAL_PLANT = NamedStrategy(
+    "coal_plant", get_strategy(pollution=80, energy=210, land=-1)
+)
+WIND_MILL = NamedStrategy("wind_mill", get_strategy(pollution=1, energy=20, land=-1))
+ADVANCED_WIND_MILL = NamedStrategy(
+    "advanced_wind_mill", get_strategy(energy=28, land=-1)
+)
+SOLAR_PANELS = NamedStrategy("solar_panels", get_strategy(energy=15, gold=2, land=-1))
+GOLD_PLATED_SOLAR_PANELS = NamedStrategy(
+    "gold_plated_solar_panels", get_strategy(energy=500, gold=2000, land=-1)
+)
+THERMAL_PLANT = NamedStrategy(
+    "thermal_plant", get_strategy(pollution=5, energy=450, land=-1)
+)
+THERMAL_PLANT_WITH_5_FAST_ROADS = NamedStrategy(
+    "thermal_plant_with_5_fast_roads",
+    THERMAL_PLANT.strategy + 5 * without_scale(FAST_ROAD.strategy),
+)
+THERMAL_PLANT_WITH_9_FAST_ROADS = NamedStrategy(
+    "thermal_plant_with_9_fast_roads",
+    THERMAL_PLANT.strategy + 9 * without_scale(FAST_ROAD.strategy),
+)
+THERMAL_PLANT_WITH_10_FAST_ROADS = NamedStrategy(
+    "thermal_plant_with_10_fast_roads",
+    THERMAL_PLANT.strategy + 10 * without_scale(FAST_ROAD.strategy),
+)
+PURE_STRATEGIES = [
+    FARM_WITH_FIELDS,  # a food strategy is also pure
+    BIG_FARM_WITH_FIELDS,  # a food strategy is also pure
+    IGNORE_FISHING_SHIPS,  # used to check if should ignore fishing ships
+    FISHING_SHIP,  # a food strategy is also pure
+    LARGE_FISHING_SHIP,  # a food strategy is also pure
+    SMALL_FOREST,
+    DENSE_FOREST,
+    DEEP_FOREST,
+    COAL_PLANT,
+    WIND_MILL,
+    ADVANCED_WIND_MILL,
+    SOLAR_PANELS,
+    GOLD_PLATED_SOLAR_PANELS,
+    THERMAL_PLANT,
+    THERMAL_PLANT_WITH_5_FAST_ROADS,
+    THERMAL_PLANT_WITH_9_FAST_ROADS,
+    THERMAL_PLANT_WITH_10_FAST_ROADS,
+]
+
+
+# Choose current best strategies for normalization
+CURRENT_ENERGY_STRATEGY = ADVANCED_WIND_MILL.strategy
+CURRENT_LAND_STRATEGY = BIG_FARM_WITH_FIELDS.strategy
+CURRENT_SEA_STRATEGY = SWEPT_OCEAN.strategy
+CURRENT_FISHING_SHIP_STRATEGY = IGNORE_FISHING_SHIPS.strategy
