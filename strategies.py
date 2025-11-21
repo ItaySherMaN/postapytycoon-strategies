@@ -88,6 +88,7 @@ BIG_FARM_FIELD_FOOD = 34
 BIG_FARM_FIELD_GOLD = BIG_FARM_FIELD_FOOD * GOLD_TO_FOOD_RATIO
 AVG_N_FIELDS_IN_BIG_FARM = 110
 MAX_N_FIELDS_IN_BIG_FARM = 120
+AVG_N_FIELDS_IN_PUMPKIN_FARM = 40
 
 # Used for testing pure strategies (whether to use the strategy or not)
 CURRENT = NamedStrategy("current", get_strategy())
@@ -295,6 +296,12 @@ BIG_FARM_WITH_MAX_FIELDS = NamedStrategy(
     without_scale(BIG_FARM.strategy)
     + MAX_N_FIELDS_IN_BIG_FARM * BIG_FARM_FIELD.strategy,
 )
+PUMPKIN_FARM = NamedStrategy("pumpkin_farm", get_strategy(land=-1, gold=200))
+PUMPKIN_FARM_WITH_FIELDS = NamedStrategy(
+    "pumpkin_farm_with_fields",
+    without_scale(PUMPKIN_FARM.strategy)
+    + AVG_N_FIELDS_IN_PUMPKIN_FARM * BIG_FARM_FIELD.strategy,
+)
 FISHING_SHIP = NamedStrategy(
     "fishing_ship",
     get_strategy(
@@ -314,6 +321,7 @@ FOOD_STRATEGIES = [
     FARM_WITH_FIELDS,
     BIG_FARM_WITH_FIELDS,
     BIG_FARM_WITH_MAX_FIELDS,
+    PUMPKIN_FARM_WITH_FIELDS,
     FISHING_SHIP,
     LARGE_FISHING_SHIP,
 ]
