@@ -1,81 +1,69 @@
-from strategies import (
-    without_scale,
+from strategy import (
+    remove_property_with,
     scale_to,
-    CURRENT_ENERGY_STRATEGY,
-    CURRENT_LAND_STRATEGY,
-    CURRENT_SEA_STRATEGY,
-    CURRENT_FISHING_SHIP_STRATEGY,
     ENERGY_ID,
     LAND_ID,
     SEA_ID,
     FISHING_SHIP_ID,
 )
+from strategies import (
+    CURRENT_ENERGY_STRATEGY,
+    CURRENT_LAND_STRATEGY,
+    CURRENT_SEA_STRATEGY,
+    CURRENT_FISHING_SHIP_STRATEGY,
+)
 import numpy as np
 
 
-ENERGY_NORMALIZER = without_scale(CURRENT_ENERGY_STRATEGY)
+ENERGY_NORMALIZER = CURRENT_ENERGY_STRATEGY
 
 
-def without_energy(strategy):
+def remove_energy(strategy):
     """
     Returns a copy of the strategy without energy component.
     """
-    global ENERGY_NORMALIZER
-    s = np.copy(strategy)
-    s -= ENERGY_NORMALIZER * (s[ENERGY_ID] / ENERGY_NORMALIZER[ENERGY_ID])
-    return s
+    return remove_property_with(strategy, ENERGY_ID, ENERGY_NORMALIZER)
 
 
-LAND_NORMALIZER = without_energy(without_scale(CURRENT_LAND_STRATEGY))
+LAND_NORMALIZER = remove_energy(CURRENT_LAND_STRATEGY)
 
 
-def without_land(strategy):
+def remove_land(strategy):
     """
     Returns a copy of the strategy without land component.
     """
-    global LAND_NORMALIZER
-    s = np.copy(strategy)
-    s -= LAND_NORMALIZER * (s[LAND_ID] / LAND_NORMALIZER[LAND_ID])
-    return s
+    return remove_property_with(strategy, LAND_ID, LAND_NORMALIZER)
 
 
-SEA_NORMALIZER = without_land(without_energy(without_scale(CURRENT_SEA_STRATEGY)))
+SEA_NORMALIZER = remove_land(remove_energy(CURRENT_SEA_STRATEGY))
 
 
-def without_sea(strategy):
+def remove_sea(strategy):
     """
     Returns a copy of the strategy without sea component.
     """
-    global SEA_NORMALIZER
-    s = np.copy(strategy)
-    s -= SEA_NORMALIZER * (s[SEA_ID] / SEA_NORMALIZER[SEA_ID])
-    return s
+    return remove_property_with(strategy, SEA_ID, SEA_NORMALIZER)
 
 
-FISHING_SHIP_NORMALIZER = without_sea(
-    without_land(without_energy(without_scale(CURRENT_FISHING_SHIP_STRATEGY)))
+FISHING_SHIP_NORMALIZER = remove_sea(
+    remove_land(remove_energy(CURRENT_FISHING_SHIP_STRATEGY))
 )
 
 
-def without_fishing_ship(strategy):
+def remove_fishing_ship(strategy):
     """
     Returns a copy of the strategy without fishing ship component.
     """
-    global FISHING_SHIP_NORMALIZER
-    s = np.copy(strategy)
-    s -= FISHING_SHIP_NORMALIZER * (
-        s[FISHING_SHIP_ID] / FISHING_SHIP_NORMALIZER[FISHING_SHIP_ID]
-    )
-    return s
+    return remove_property_with(strategy, FISHING_SHIP_ID, FISHING_SHIP_NORMALIZER)
 
 
-def normalize(s):
+def normalize(s, property_id=-1):
     # remove energy
-    s = without_energy(s)
+    s = remove_energy(s)
     # remove land
-    s = without_land(s)
+    s = remove_land(s)
     # remove sea
-    s = without_sea(s)
+    s = remove_sea(s)
     # remove fishing ship
-    s = without_fishing_ship(s)
-    return scale_to(s, 1.0)
+    s = remove_fishing_ship(s)
+    return s if property_id == -1 else scale_to(s, property_id, 1.0)
