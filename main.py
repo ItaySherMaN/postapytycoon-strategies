@@ -69,16 +69,18 @@ def main():
     print_strategies_relative_move_data(SETTLEMENTS_STRATEGIES)
     print_strategies_relative_move_data(MEGA_CITY_STRATEGIES)
     print_strategies_relative_move_data(ROADS_STRATEGIES)
-    print_strategies_relative_move_data(STONE_GAIN_STRATEGIES, STONE_ID)
-    print_strategies_relative_move_data(IRON_GAIN_STRATEGIES, IRON_ID)
-    print_strategies_relative_move_data(WOOD_GAIN_STRATEGIES, WOOD_ID)
-    print_strategies_relative_move_data(CHIPS_GAIN_STRATEGIES, CHIPS_ID)
-    print_strategies_relative_move_data(OIL_GAIN_STRATEGIES, OIL_ID)
-    print_strategies_relative_move_data(OIL_STORAGE_STRATEGIES, OIL_STORAGE_ID)
+    print_strategies_relative_move_data(STONE_GAIN_STRATEGIES, property_id=STONE_ID)
+    print_strategies_relative_move_data(IRON_GAIN_STRATEGIES, property_id=IRON_ID)
+    print_strategies_relative_move_data(WOOD_GAIN_STRATEGIES, property_id=WOOD_ID)
+    print_strategies_relative_move_data(CHIPS_GAIN_STRATEGIES, property_id=CHIPS_ID)
+    print_strategies_relative_move_data(OIL_GAIN_STRATEGIES, property_id=OIL_ID)
+    print_strategies_relative_move_data(
+        OIL_STORAGE_STRATEGIES, property_id=OIL_STORAGE_ID
+    )
     print_strategies_relative_move_data(
         SHIPYARD_STRATEGIES, compare_first_to_current=True
     )
-    print_strategies_relative_move_data(FOOD_STRATEGIES, FOOD_ID)
+    print_strategies_relative_move_data(FOOD_STRATEGIES, property_id=FOOD_ID)
 
     print_strategies_absolute_move_data(PURE_STRATEGIES)
 
