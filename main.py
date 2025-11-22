@@ -28,10 +28,11 @@ def calc_move_data(s1, s2, property_id=-1):
     v2 = 1 if property_id == -1 else s2[property_id]
     alpha = 1 if property_id == -1 else v1 / v2
     diff = s2_n * alpha - s1_n  # diff[property_id] == 0
-    # diff = normalize(s2, property_id) - normalize(s1, property_id)
-    gold = diff[GOLD_ID] / v1  # temp /v1 TODO(sherman): fix
-    pollution = diff[POLLUTION_ID] / v1  # temp /v1 TODO(sherman): fix
-    ratio = float("inf") if pollution == 0 else gold / pollution
+    gold = diff[GOLD_ID]
+    pollution = diff[POLLUTION_ID]
+    ratio = (
+        (float("inf" if gold >= 0 else "-inf")) if pollution == 0 else gold / pollution
+    )
     return gold, pollution, ratio
 
 
