@@ -1,4 +1,3 @@
-from utils import to_str
 import numpy as np
 
 POLLUTION_ID = 0
