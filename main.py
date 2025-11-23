@@ -13,7 +13,54 @@ def print_strategy(s, name):
     print()
 
 
-def calc_move_data(s1, s2, property_id=-1):
+class ComparisonData:
+    def __init__(
+        self, strategy_1: NamedStrategy, strategy_2: NamedStrategy, property_id=-1
+    ):
+        s1 = strategy_1.strategy
+        s2 = strategy_2.strategy
+        s1_n = normalize(strategy_1.strategy)
+        s2_n = normalize(strategy_2.strategy)
+        v1 = 1 if property_id == -1 else s1[property_id]
+        v2 = 1 if property_id == -1 else s2[property_id]
+        alpha = 1 if property_id == -1 else v1 / v2
+        diff = s2_n * alpha - s1_n  # diff[property_id] == 0
+        gold = diff[GOLD_ID]
+        pollution = diff[POLLUTION_ID]
+        # if gold < 0:
+        #     self.from_name = strategy_2.name
+        #     self.to_name = strategy_1.name
+        #     gold = -gold
+        #     pollution = -pollution
+        # else:
+        #     self.from_name = strategy_1.name
+        #     self.to_name = strategy_2.name
+        self.from_name = strategy_1.name
+        self.to_name = strategy_2.name
+        ratio = (
+            (float("inf" if gold >= 0 else "-inf"))
+            if pollution == 0
+            else gold / pollution
+        )
+        self.gold = gold
+        self.pollution = pollution
+        self.ratio = ratio
+
+    def print(self):
+        gold_str = ("+" if self.gold >= 0 else "") + to_str(self.gold)
+        pollution_str = ("+" if self.pollution >= 0 else "") + to_str(self.pollution)
+        print(f"{self.from_name} -> {self.to_name}:")
+        print(f"{gold_str} g\t{pollution_str} p\t{to_str(self.ratio)} g/p")
+
+    def __iter__(self):
+        yield self.from_name
+        yield self.to_name
+        yield self.gold
+        yield self.pollution
+        yield self.ratio
+
+
+def calc_comparison_data(s1, s2, property_id=-1):
     """
     Computes the gold and pollution we get by moving from strategy `s1` to `s2`,
     where by moving we preseve the property at `property_id`.
@@ -36,17 +83,15 @@ def calc_move_data(s1, s2, property_id=-1):
     return gold, pollution, ratio
 
 
-def print_move_data(s1, s2, name1, name2, property_id=-1):
-    gold, pollution, ratio = calc_move_data(s1, s2, property_id)
-    gold_str = ("+" if gold >= 0 else "") + to_str(gold)
-    pollution_str = ("+" if pollution >= 0 else "") + to_str(pollution)
-    print(f"{name1} -> {name2}:")
-    print(f"{gold_str} g\t{pollution_str} p\t{to_str(ratio)} g/p")
+def print_move_data(
+    strategy_1: NamedStrategy, strategy_2: NamedStrategy, property_id=-1
+):
+    ComparisonData(strategy_1, strategy_2, property_id).print()
 
 
 def print_strategies_absolute_move_data(strategies, property_id=-1):
-    for name, strategy in strategies:
-        print_move_data(CURRENT.strategy, strategy, CURRENT.name, name, property_id)
+    for strategy in strategies:
+        print_move_data(CURRENT, strategy, property_id)
     print()
 
 
@@ -54,14 +99,9 @@ def print_strategies_relative_move_data(
     strategies_list, compare_first_to_current=False, property_id=-1
 ):
     if compare_first_to_current:
-        first_name, first_strategy = strategies_list[0]
-        print_move_data(
-            CURRENT.strategy, first_strategy, CURRENT.name, first_name, property_id
-        )
+        print_move_data(CURRENT, strategies_list[0], property_id)
     for i in range(len(strategies_list) - 1):
-        curr_name, corr_strategy = strategies_list[i]
-        next_name, next_strategy = strategies_list[i + 1]
-        print_move_data(corr_strategy, next_strategy, curr_name, next_name, property_id)
+        print_move_data(strategies_list[i], strategies_list[i + 1], property_id)
     print()
 
 

@@ -40,24 +40,24 @@ GOLD_MINE_STRATEGIES = [
 ]
 
 LEVEL_20 = NamedStrategy("level_20", get_strategy(gold=527))
-LEVEL_30 = NamedStrategy("level_30", get_strategy(pollution=117, energy=-282, gold=761))
-LEVEL_40 = NamedStrategy("level_40", get_strategy(pollution=207, energy=-539, gold=956))
+LEVEL_30 = NamedStrategy("level_30", get_strategy(pollution=117, energy=-267, gold=761))
+LEVEL_40 = NamedStrategy("level_40", get_strategy(pollution=207, energy=-510, gold=956))
 LEVEL_50 = NamedStrategy(
-    "level_50", get_strategy(pollution=297, energy=-795, gold=1164)
+    "level_50", get_strategy(pollution=297, energy=-753, gold=1164)
 )
 LEVEL_55 = NamedStrategy(
-    "level_55", get_strategy(pollution=342, energy=-923, gold=1229)
+    "level_55", get_strategy(pollution=342, energy=-875, gold=1229)
 )
 LEVEL_66 = NamedStrategy(
-    "level_66", get_strategy(pollution=441, energy=-1206, gold=1463)
+    "level_66", get_strategy(pollution=441, energy=-1142, gold=1463)
 )
 SETTLEMENTS_STRATEGIES = [LEVEL_20, LEVEL_30, LEVEL_40, LEVEL_50, LEVEL_55, LEVEL_66]
 
 MEGA_CITY_33 = NamedStrategy(
-    "mega_city_33", get_strategy(pollution=216, energy=-567, gold=3998)
+    "mega_city_33", get_strategy(pollution=216, energy=-510, gold=3998)
 )
 MEGA_CITY_60 = NamedStrategy(
-    "mega_city_60", get_strategy(pollution=581, energy=-1661, gold=6923)
+    "mega_city_60", get_strategy(pollution=581, energy=-1494, gold=6923)
 )
 MEGA_CITY_STRATEGIES = [MEGA_CITY_33, MEGA_CITY_60]
 
