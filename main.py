@@ -17,26 +17,19 @@ class ComparisonData:
     def __init__(
         self, strategy_1: NamedStrategy, strategy_2: NamedStrategy, property_id=-1
     ):
-        s1 = strategy_1.strategy
-        s2 = strategy_2.strategy
-        s1_n = normalize(strategy_1.strategy)
-        s2_n = normalize(strategy_2.strategy)
-        v1 = 1 if property_id == -1 else s1[property_id]
-        v2 = 1 if property_id == -1 else s2[property_id]
-        alpha = 1 if property_id == -1 else v1 / v2
-        diff = s2_n * alpha - s1_n  # diff[property_id] == 0
+        s1_n = normalize(strategy_1.strategy, property_id)
+        s2_n = normalize(strategy_2.strategy, property_id)
+        diff = s2_n - s1_n  # diff[property_id] == 0
         gold = diff[GOLD_ID]
         pollution = diff[POLLUTION_ID]
-        # if gold < 0:
-        #     self.from_name = strategy_2.name
-        #     self.to_name = strategy_1.name
-        #     gold = -gold
-        #     pollution = -pollution
-        # else:
-        #     self.from_name = strategy_1.name
-        #     self.to_name = strategy_2.name
-        self.from_name = strategy_1.name
-        self.to_name = strategy_2.name
+        if gold < 0:
+            self.from_name = strategy_2.name
+            self.to_name = strategy_1.name
+            gold = -gold
+            pollution = -pollution
+        else:
+            self.from_name = strategy_1.name
+            self.to_name = strategy_2.name
         ratio = (
             (float("inf" if gold >= 0 else "-inf"))
             if pollution == 0
@@ -49,8 +42,9 @@ class ComparisonData:
     def print(self):
         gold_str = ("+" if self.gold >= 0 else "") + to_str(self.gold)
         pollution_str = ("+" if self.pollution >= 0 else "") + to_str(self.pollution)
+        ratio_str = to_str(self.ratio)
         print(f"{self.from_name} -> {self.to_name}:")
-        print(f"{gold_str} g\t{pollution_str} p\t{to_str(self.ratio)} g/p")
+        print(f"{gold_str} g\t{pollution_str} p\t{ratio_str} g/p")
 
     def __iter__(self):
         yield self.from_name
@@ -121,8 +115,6 @@ def main():
     print_strategies_relative_move_data(
         SHIPYARD_STRATEGIES, compare_first_to_current=True
     )
-    print_strategies_relative_move_data(FOOD_STRATEGIES, property_id=FOOD_ID)
-
     print_strategies_absolute_move_data(PURE_STRATEGIES)
 
 

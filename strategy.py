@@ -100,6 +100,7 @@ def scale_to(strategy, property_id, new_scale):
     Returns a copy of the strategy scaled to new_scale.
     """
     old_scale = strategy[property_id]
+    assert old_scale != 0, "Cannot scale strategy with zero property value."
     return strategy * (new_scale / old_scale)
 
 
