@@ -28,8 +28,8 @@ class ComparisonData:
     def __init__(
         self, strategy_1: NamedStrategy, strategy_2: NamedStrategy, property_id=-1
     ):
-        s1_n = normalize(strategy_1.strategy, property_id)
-        s2_n = normalize(strategy_2.strategy, property_id)
+        s1_n = normalize(strategy_1, property_id)
+        s2_n = normalize(strategy_2, property_id)
         diff = s2_n - s1_n  # diff[property_id] == 0
         self.from_name = strategy_1.name
         self.to_name = strategy_2.name
@@ -68,7 +68,7 @@ class ComparisonData:
         return hash((self.from_name, self.to_name))
 
 
-def print_move_data(
+def print_comparison_data(
     strategy_1: NamedStrategy, strategy_2: NamedStrategy, property_id=-1
 ):
     ComparisonData(strategy_1, strategy_2, property_id).print()
@@ -133,7 +133,7 @@ def main():
         IRON_GAIN_STRATEGIES, comparisons_set, property_id=IRON_ID
     )
     gather_relative_comparison_datas(
-        WOOD_GAIN_STRATEGIES, comparisons_set, property_id=WOOD_ID
+        LUMBER_GAIN_STRATEGIES, comparisons_set, property_id=LUMBER_ID
     )
     gather_relative_comparison_datas(
         CHIPS_GAIN_STRATEGIES, comparisons_set, property_id=CHIPS_ID

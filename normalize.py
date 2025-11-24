@@ -1,6 +1,7 @@
 from strategy import (
     remove_property_with,
     scale_to,
+    get_strategy,
     ENERGY_ID,
     LAND_ID,
     SEA_ID,
@@ -59,7 +60,7 @@ def remove_fishing_ship(strategy):
 
 def normalize(s, property_id=-1):
     # remove energy
-    s = remove_energy(s)
+    s = remove_energy(get_strategy(s))
     # remove land
     s = remove_land(s)
     # remove sea
