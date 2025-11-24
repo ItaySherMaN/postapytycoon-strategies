@@ -58,10 +58,21 @@ LEVEL_50 = NamedStrategy(
 LEVEL_55 = NamedStrategy(
     "level_55", make_strategy(pollution=342, energy=-875, gold=1229)
 )
+LEVEL_60 = NamedStrategy(
+    "level_60", make_strategy(pollution=387, energy=-996, gold=1385)
+)
 LEVEL_66 = NamedStrategy(
     "level_66", make_strategy(pollution=441, energy=-1142, gold=1463)
 )
-SETTLEMENTS_STRATEGIES = [LEVEL_20, LEVEL_30, LEVEL_40, LEVEL_50, LEVEL_55, LEVEL_66]
+SETTLEMENTS_STRATEGIES = [
+    LEVEL_20,
+    LEVEL_30,
+    LEVEL_40,
+    LEVEL_50,
+    LEVEL_55,
+    LEVEL_60,
+    LEVEL_66,
+]
 
 MEGA_CITY_33 = NamedStrategy(
     "mega_city_33", make_strategy(pollution=216, energy=-510, gold=3998)
