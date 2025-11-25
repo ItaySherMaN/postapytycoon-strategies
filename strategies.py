@@ -15,7 +15,6 @@ BIG_FARM_FIELD_GOLD = BIG_FARM_FIELD_FOOD * GOLD_TO_FOOD_RATIO
 AVG_N_FIELDS_IN_BIG_FARM = 110
 MAX_N_FIELDS_IN_BIG_FARM = 120
 AVG_N_FIELDS_IN_PUMPKIN_FARM = 40
-CARGO_STATION_BONUS = 2.3
 
 
 # Used for testing pure strategies (whether to use the strategy or not)
@@ -114,7 +113,9 @@ CARGO_STATION_4_CHIP_FACTORIES = NamedStrategy(
 )
 SPACE_AGE_FACTORY = NamedStrategy(
     "space_age_factory",
-    make_strategy(pollution=100, energy=-200, gold=300, chips=540, chips_storage=50000),
+    make_strategy(
+        pollution=100, energy=-200, land=-1, gold=300, chips=540, chips_storage=50000
+    ),
 )
 CHIPS_GAIN_STRATEGIES = [HEAVY_CHIP_FACTORY, CHIP_FACTORY, SPACE_AGE_FACTORY]
 
@@ -166,6 +167,18 @@ HEAVY_FOUNDARY_45_MINES = NamedStrategy(
     "heavy_foundary_45_mines",
     HEAVY_FOUNDARY + 45 * HEAVY_FOUNDARY_IRON_MINE,
 )
+HEAVY_FOUNDARY_HYBRID_MINE = NamedStrategy(
+    "heavy_foundary_hybrid_mine",
+    make_strategy(
+        pollution=1,
+        energy=-2,
+        gold=5,
+        land=-1,
+        stone=35,
+        stone_storage=24000,
+        iron=2 * HEAVY_FOUNDARY_IRON_MINE[IRON_ID],
+    ),
+)
 IRON_GAIN_STRATEGIES = [
     FOUNDARY_20_MINES,
     HEAVY_FOUNDARY_10_MINES,
@@ -209,11 +222,20 @@ OFFSHORE_OIL_RIG_WITH_OIL_TANKER = NamedStrategy(
     "offshore_oil_rig_with_oil_tanker",
     OFFSHORE_OIL_RIG + OIL_TANKER,
 )
+RIFT_OIL_RIG = NamedStrategy(
+    "rift_oil_rig",
+    make_strategy(pollution=3, energy=-5, land=-1, oil=45, oil_storage=32000),
+)
 OIL_GAIN_STRATEGIES = [
     ONSHORE_OIL_RIG,
     OFFSHORE_OIL_RIG_WITH_OIL_TANKER,
     OFFSHORE_OIL_RIG,
+    RIFT_OIL_RIG,
 ]
+URANIUM_REFINERY = NamedStrategy(
+    "uranium_refinery",
+    make_strategy(pollution=400, energy=-100, ubatteries=3, ubatteries_storage=120),
+)
 
 SMALL_SHIPYARD = NamedStrategy(
     "small_shipyard",
@@ -351,20 +373,95 @@ PURE_STRATEGIES = [
     IGNORE_FISHING_SHIP,
 ] + FOOD_STRATEGIES  # food strategies are also pure strategies
 
+STORAGE_CONTAINER_400 = NamedStrategy(
+    "storage_container_400",
+    make_strategy(land=-1, stone_storage=7500, iron_storage=5000, chips_storage=15000),
+)
 STORAGE_CRANE = NamedStrategy(
     "storage_crane",
     make_strategy(
         pollution=12,
         energy=-12,
+        land=-1,
         stone_storage=10000,
         lumber_storage=8000,
         iron_storage=7000,
         chips_storage=20000,
     ),
 )
-URANIUM_REFINERY = NamedStrategy(
-    "uranium_refinery",
-    make_strategy(pollution=400, energy=-100, ubatteries=3, ubatteries_storage=120),
+STEEL_STORAGE = NamedStrategy(
+    "steel_storage", make_strategy(pollution=3, land=-1, iron_storage=8500)
+)
+SHIPYARD_STORAGE = NamedStrategy(
+    "shipyard_storage",
+    make_strategy(
+        sea=-1,
+        pollution=35,
+        energy=-25,
+        lumber_storage=18750,
+        stone_storage=18750,
+        iron_storage=25000,
+        chips_storage=50000,
+    ),
+)
+SUPER_ECO_STORAGE = NamedStrategy(
+    "super_eco_storage",
+    make_strategy(
+        pollution=-40,
+        energy=-25,
+        land=-1,
+        lumber_storage=360000,
+        stone_storage=600000,
+        iron_storage=560000,
+        chips_storage=1600000,
+        oil_storage=440000,
+        ubatteries_storage=2000,
+    ),
+)
+SUPER_ECO_STORAGE_WITH_PAVEMENT = NamedStrategy(
+    "super_eco_storage_with_pavement", with_storage_bonus(SUPER_ECO_STORAGE, 1.2)
+)
+ECO_STORAGE = NamedStrategy(
+    "eco_storage",
+    make_strategy(
+        pollution=-2,
+        energy=-10,
+        land=-1,
+        lumber_storage=36000,
+        stone_storage=60000,
+        iron_storage=56000,
+        chips_storage=160000,
+        oil_storage=44000,
+    ),
+)
+ECO_STORAGE_WITH_PAVEMENT = NamedStrategy(
+    "eco_storage_with_pavement", with_storage_bonus(ECO_STORAGE, 1.5)
+)
+PREMIUM_STORAGE = NamedStrategy(
+    "premium_storage",
+    make_strategy(
+        land=-1,
+        lumber_storage=9000,
+        stone_storage=15000,
+        iron_storage=14000,
+        chips_storage=40000,
+        oil_storage=11000,
+    ),
+)
+PREMIUM_STORAGE_WITH_PAVEMENT = NamedStrategy(
+    "premium_storage_with_pavement", with_storage_bonus(PREMIUM_STORAGE, 1.5)
+)
+COMPLEX_GOLD_MINE = NamedStrategy(
+    "complex_gold_mine",
+    make_strategy(
+        pollution=120,
+        energy=500,
+        gold=1500,
+        chips=700,
+        chips_storage=50000,
+        iron=300,
+        iron_storage=30000,
+    ),
 )
 
 

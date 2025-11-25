@@ -3,17 +3,6 @@ from normalize import normalize
 from utils import to_str, safe_divide
 
 
-def print_strategy(s, name):
-    """
-    Prints the non-zero elements of the strategy with their labels.
-    """
-    print(f"Strategy: {name}")
-    for i in range(len(s)):
-        if s[i] != 0:
-            print(f"{LABELS[i]}: {to_str(s[i])}")
-    print()
-
-
 class ComparisonData:
     """
     Holds data about moving from one strategy to another.
@@ -159,6 +148,58 @@ def main():
     print("Trade off:")
     for comparison_data in trade_off:
         comparison_data.print()
+
+    num_complex_gold_mine = 1
+    num_super_eco_storage_with_pavement = 1
+    num_eco_storage_with_pavement = 9
+    num_premium_storage_with_pavement = 9
+    num_oil_storage = 2344
+    num_storage_container_400 = 4521
+    num_steel_storage = 78
+    num_heavy_chip_factory = 0
+    num_industrial_mill = 31
+    num_premium_lumber_mill = 6
+    num_uranium_refinery = 3
+    num_mk2_stone_mine = 651
+    num_heavy_foundary_iron_mine = 760
+    num_heavy_foundary_hybrid_mine = 17
+    num_shipyard_storage = 118
+    num_heavy_foundary = 24
+    num_chip_factory = 152
+    num_space_age_factory = 11
+    num_onshore_oil_rig = 1145
+    num_rift_oil_rig = 2
+    num_storage_crane = 1353
+    total_production = (
+        num_complex_gold_mine * COMPLEX_GOLD_MINE
+        + num_super_eco_storage_with_pavement * SUPER_ECO_STORAGE_WITH_PAVEMENT
+        + num_eco_storage_with_pavement * ECO_STORAGE_WITH_PAVEMENT
+        + num_premium_storage_with_pavement * PREMIUM_STORAGE_WITH_PAVEMENT
+        + num_oil_storage * OIL_STORAGE
+        + num_storage_container_400 * STORAGE_CONTAINER_400
+        + num_steel_storage * STEEL_STORAGE
+        + num_heavy_chip_factory * HEAVY_CHIP_FACTORY
+        + num_industrial_mill * INDUSTRIAL_MILL
+        + num_premium_lumber_mill * PREMIUM_LUMBER_MILL
+        + num_uranium_refinery * URANIUM_REFINERY
+        + num_mk2_stone_mine * MK2_STONE_MINE
+        + num_heavy_foundary_iron_mine * HEAVY_FOUNDARY_IRON_MINE
+        + num_heavy_foundary_hybrid_mine * HEAVY_FOUNDARY_HYBRID_MINE
+        + num_shipyard_storage * SHIPYARD_STORAGE
+        + num_heavy_foundary * HEAVY_FOUNDARY
+        + num_chip_factory * CHIP_FACTORY
+        + num_space_age_factory * SPACE_AGE_FACTORY
+        + num_onshore_oil_rig * ONSHORE_OIL_RIG
+        + num_rift_oil_rig * RIFT_OIL_RIG
+        + num_storage_crane * STORAGE_CRANE
+    )
+    print_strategy(total_production)
+    print_strategy(normalize(total_production))
+    # print_strategy(STORAGE_CONTAINER_400)
+    # print_strategy(STORAGE_CRANE)
+    # print_strategy(SHIPYARD_STORAGE)
+    # print_strategy(MK2_STONE_MINE)
+    # print_strategy(COMPLEX_GOLD_MINE)
 
 
 if __name__ == "__main__":

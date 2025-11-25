@@ -1,4 +1,5 @@
 import numpy as np
+from utils import to_str
 
 POLLUTION_ID = 0
 ENERGY_ID = 1
@@ -20,7 +21,15 @@ UBATTERIES_ID = 16
 UBATTERIES_STORAGE_ID = 17
 FOOD_ID = 18
 
-STORAGE_BONUS = 1.1
+STORAGE_IDS = [
+    LUMBER_STORAGE_ID,
+    STONE_STORAGE_ID,
+    IRON_STORAGE_ID,
+    CHIPS_STORAGE_ID,
+    OIL_STORAGE_ID,
+    UBATTERIES_STORAGE_ID,
+]
+DEFAULT_STORAGE_BONUS = 1.1
 
 LABELS = [
     "POLLUTION_ID",
@@ -74,19 +83,45 @@ def make_strategy(
     strategy[FISHING_SHIP_ID] = fishing_ship
     strategy[GOLD_ID] = gold
     strategy[LUMBER_ID] = lumber
-    strategy[LUMBER_STORAGE_ID] = lumber_storage * STORAGE_BONUS
+    strategy[LUMBER_STORAGE_ID] = lumber_storage
     strategy[STONE_ID] = stone
-    strategy[STONE_STORAGE_ID] = stone_storage * STORAGE_BONUS
+    strategy[STONE_STORAGE_ID] = stone_storage
     strategy[IRON_ID] = iron
-    strategy[IRON_STORAGE_ID] = iron_storage * STORAGE_BONUS
+    strategy[IRON_STORAGE_ID] = iron_storage
     strategy[CHIPS_ID] = chips
-    strategy[CHIPS_STORAGE_ID] = chips_storage * STORAGE_BONUS
+    strategy[CHIPS_STORAGE_ID] = chips_storage
     strategy[OIL_ID] = oil
-    strategy[OIL_STORAGE_ID] = oil_storage * STORAGE_BONUS
+    strategy[OIL_STORAGE_ID] = oil_storage
     strategy[UBATTERIES_ID] = ubatteries
-    strategy[UBATTERIES_STORAGE_ID] = ubatteries_storage * STORAGE_BONUS
+    strategy[UBATTERIES_STORAGE_ID] = ubatteries_storage
     strategy[FOOD_ID] = food
+    apply_storage_bonus(strategy, DEFAULT_STORAGE_BONUS)
     return strategy
+
+
+def apply_storage_bonus(strategy, storage_bonus):
+    s = get_strategy(strategy)
+    for storage_id in STORAGE_IDS:
+        s[storage_id] *= storage_bonus
+
+
+def with_storage_bonus(strategy, storage_bonus):
+    s = np.copy(get_strategy(strategy))
+    apply_storage_bonus(s, storage_bonus)
+    return s
+
+
+def print_strategy(strategy):
+    """
+    Prints the non-zero elements of the strategy with their labels.
+    """
+    name = strategy.name if isinstance(strategy, NamedStrategy) else ""
+    s = get_strategy(strategy)
+    print(f"Strategy: {name}")
+    for property_id in range(len(s)):
+        if s[property_id] != 0:
+            print(f"{LABELS[property_id]}: {to_str(s[property_id])}")
+    print()
 
 
 class NamedStrategy:
@@ -126,7 +161,7 @@ class NamedStrategy:
         yield self.strategy
 
 
-def get_strategy(strategy):
+def get_strategy(strategy: NamedStrategy | np.ndarray):
     return strategy.strategy if isinstance(strategy, NamedStrategy) else strategy
 
 
